@@ -1,10 +1,7 @@
 
 void draw(){
-  
-  
-  plot();
 
-
+    plot();
 
 }
 

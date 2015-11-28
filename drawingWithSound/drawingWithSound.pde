@@ -27,8 +27,14 @@ void setup()
   in = minim.getLineIn(Minim.MONO, 256);
   //background(white);
   fft = new FFT(in.bufferSize(), in.sampleRate());
-
+  
+  // Uncomment this to try the PDF recording 
+  // also uncomment the "endRecord" line at end of draw method
+  // beginRecord(PDF, "polygondoor_drew_with_sound.pdf"); 
+  
 }
+
+boolean shouldContinue = true;
 
 float angle = 0;
 
@@ -44,7 +50,7 @@ int radius;
 
 void plot()
 {
- println(radius);
+ // println(radius);
 
 if (angle <= 360){
   
@@ -99,7 +105,7 @@ if (angle <= 360){
     if (frequency > 200 && frequency < 15000){
 
      
-    println(frequency);
+    //println(frequency);
     stroke(frequency,frequency,frequency,80);
     }
     
@@ -113,8 +119,19 @@ if (angle <= 360){
  
    drawing((int)(width/2 + (finalX * radius)), (int)((height/2) + (finalY * radius)),(int)volume);
   }
-}
+} else {
+  noLoop();
   
+  // get timestamp to save file
+  java.util.Date d = new java.util.Date();
+  long current = d.getTime()/1000; 
+
+  // uncomment this to try the PDF recording.
+  //endRecord();
+  
+  // uncomment this to try the PNG saving
+  saveFrame("polygondoor_drew_with_sound_" + current + "_.png");
+}
 }
     
 void drawPolydonDoorLogo(int x, int y, float scale){
