@@ -1,3 +1,4 @@
+import processing.serial.*;
 import processing.pdf.*;
 import ddf.minim.*;
 import ddf.minim.analysis.*;
@@ -14,6 +15,10 @@ float frequency;//the frequency in hertz
 PFont font;
 float scale;
 float samplerate = 44100;
+
+// reading serial for input from Arduino
+Serial myPort;
+String serialVal;
 
 void setup()
 {
@@ -50,6 +55,10 @@ void setup()
   // beginRecord(PDF, "polygondoor_drew_with_sound.pdf");
   
   samplerate = in.sampleRate();
+  
+  // Now, setup ut the serial reader
+  String portName = Serial.list()[3];
+  myPort = new Serial(this, portName, 115200);
 }
 
 boolean shouldContinue = true;
@@ -66,7 +75,22 @@ float prevX;
 float prevY;
 int radius;
 
+float pulseValue = 0;
+
 void draw(){
+  
+  if ( myPort.available() > 0) 
+  {  // If data is available,
+    serialVal = myPort.readStringUntil('\n');         // read it and store it in serialVal
+    try {
+      // println( trim(serialVal.substring(1)));
+      pulseValue = parseInt( trim(serialVal.substring(1)) );
+    } catch (Exception e) {
+      pulseValue = 0;
+    }
+  } 
+  // println(pulseValue); //print it out in the console
+  pulseValue = map( (pulseValue - 300), 0, 700, 0,100);
   
   colorMode(HSB,2000);
   noFill();
@@ -117,13 +141,13 @@ void draw(){
         
           pushMatrix();
           translate( (int)(width/2 + (finalX * radius)), (int)((height/2.5) + (finalY * radius)) );
-          //rotate(radians(angle));
+            rotate(radians(angle));
             // DRAWING FUNCTION ABSTRACTED HERE
             adjustedVolume = map( abs(volume), 0, 5, 0, 50 );
             // println("volume: " + adjustedVolume);
             // println("   log: " + log10(adjustedVolume) );
             // println(frequency);
-            drawing( adjustedVolume, frequency /*map( frequency, 200, 150000, 0, 2000)*/ );
+            drawing( adjustedVolume, frequency /*map( frequency, 200, 150000, 0, 2000)*/, pulseValue);
             // println( map(log10(frequency), 2, 5, 0, 255));
             // END DRAWING ABSTRACTION
           popMatrix();
