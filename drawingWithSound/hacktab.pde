@@ -2,6 +2,8 @@
  *  loudness 0-200
  *  pitch 0-2000
  *  pulse is 0 - 100
+ *
+ * NOTE: remember to make sure that the right USB port is being used (for pulse sensor)
  */
  
 int count = 0;
