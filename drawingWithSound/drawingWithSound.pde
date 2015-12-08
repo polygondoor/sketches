@@ -16,10 +16,6 @@ PFont font;
 float scale;
 float samplerate = 44100;
 
-// reading serial for input from Arduino
-Serial myPort;
-String serialVal;
-
 void setup()
 {
   // Size of window on-screen
@@ -41,7 +37,7 @@ void setup()
   textFont(font, 30*scale);
   text("Polygon Door",width-230*scale, height-25*scale);  
 
-  drawPolydonDoorLogo( int( width/2 - (scale * 80) ), int( height/2.5 - (scale * 70)), scale*1.6);
+  drawPolydonDoorLogo( int( width/2 - (scale * 50) ), int( height/2.5 - (scale * 40)), scale);
 
   minim = new Minim(this);
   radius = (int)(width/3.75);
@@ -55,10 +51,7 @@ void setup()
   // beginRecord(PDF, "polygondoor_drew_with_sound.pdf");
   
   samplerate = in.sampleRate();
-  
-  // Now, setup ut the serial reader
-  String portName = Serial.list()[3];
-  myPort = new Serial(this, portName, 115200);
+
 }
 
 boolean shouldContinue = true;
@@ -76,23 +69,11 @@ float prevY;
 int radius;
 
 float pulseValue = 0;
+float scaledFrequency = 0;
 
 void draw(){
   
-  if ( myPort.available() > 0) 
-  {  // If data is available,
-    serialVal = myPort.readStringUntil('\n');         // read it and store it in serialVal
-    try {
-      // println( trim(serialVal.substring(1)));
-      pulseValue = parseInt( trim(serialVal.substring(1)) );
-    } catch (Exception e) {
-      pulseValue = 0;
-    }
-  } 
-  // println(pulseValue); //print it out in the console
-  pulseValue = map( (pulseValue - 300), 0, 700, 0,100);
-  
-  colorMode(HSB,2000);
+  colorMode(HSB,255);
   noFill();
 
   if (angle <= 361){
@@ -110,6 +91,7 @@ void draw(){
     for (int i=0; i<max.length; i++) {// read each frequency in order to compare with the peak of volume
       if (max[i] == maximum) {//if the value is equal to the amplitude of the peak, get the index of the array, which corresponds to the frequency
         frequency= i;
+        scaledFrequency = i/10;
       }
     }
   
@@ -118,9 +100,9 @@ void draw(){
     {
 
       if (frequency > 200 && frequency < 15000){ 
-        stroke(frequency,frequency,frequency,180);
+        stroke(scaledFrequency,scaledFrequency,scaledFrequency,180);
       }
-         
+
       strokeWeight(width/500);
       
       pushMatrix();
@@ -147,7 +129,7 @@ void draw(){
             // println("volume: " + adjustedVolume);
             // println("   log: " + log10(adjustedVolume) );
             // println(frequency);
-            drawing( adjustedVolume, frequency /*map( frequency, 200, 150000, 0, 2000)*/, pulseValue);
+            drawing( adjustedVolume, frequency/10 /*map( frequency, 200, 150000, 0, 2000)*/);
             // println( map(log10(frequency), 2, 5, 0, 255));
             // END DRAWING ABSTRACTION
           popMatrix();
